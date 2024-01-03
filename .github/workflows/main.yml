@@ -1,0 +1,43 @@
+name: build
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      DIR: .
+      FILE: cv.tex
+    steps:
+      - name: Set up Git repository
+        uses: actions/checkout@v3
+      - name: Produce CV.pdf using Dante Latex Action
+        uses: dante-ev/latex-action@latest
+        with:
+          root_file: cv.tex
+      - name: Move to ./github_artifacts
+        run: mkdir -p github_artifacts && mv ./cv.pdf ./github_artifacts/
+      - name: Upload pdf as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: cv.pdf
+          path: ./github_artifacts
+      - name: deploy on orphan build branch
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./github_artifacts
+          publish_branch: build
+          force_orphan: true
+          enable_jekyll: true
+  copy-files-to-build:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Copy To Branches Action
+        uses: planetoftheweb/copy-to-branches@v1.3
+        env:          
+          key: master
+          files: index.html 
+
