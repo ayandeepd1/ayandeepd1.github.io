@@ -38,6 +38,6 @@ jobs:
       - name: Copy To Branches Action
         uses: planetoftheweb/copy-to-branches@v1.3
         env:          
-          key: master
+          key: main
           files: index.html 
 
